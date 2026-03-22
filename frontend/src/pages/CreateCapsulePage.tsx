@@ -8,11 +8,13 @@ import { useAuth } from '../contexts/AuthContext'
 import api from '../lib/api'
 import { Batch, Profile } from '../lib/supabase'
 import { addYears, format } from 'date-fns'
+import VoiceRecorder from '../components/VoiceRecorder'
 
 interface CapsuleForm {
   recipient_type: 'teacher' | 'student'
   recipient_id: string
   content_text: string
+  is_collaborative: boolean
 }
 
 export default function CreateCapsulePage() {
@@ -22,6 +24,7 @@ export default function CreateCapsulePage() {
   const [recipients, setRecipients] = useState<Profile[]>([])
   const [mediaFiles, setMediaFiles] = useState<File[]>([])
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([])
+  const [voiceFile, setVoiceFile] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<CapsuleForm>({
@@ -73,7 +76,9 @@ export default function CreateCapsulePage() {
       formData.append('recipient_type', data.recipient_type)
       if (data.recipient_id) formData.append('recipient_id', data.recipient_id)
       formData.append('content_text', data.content_text)
+      formData.append('is_collaborative', String(!!data.is_collaborative))
       mediaFiles.forEach(f => formData.append('media', f))
+      if (voiceFile) formData.append('media', voiceFile)
 
       await api.post('/capsules', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       toast.success('Time capsule created and locked! 🔒')
@@ -157,6 +162,23 @@ export default function CreateCapsulePage() {
             </motion.div>
           )}
 
+          {/* Collaborative Checkbox */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+            className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+          >
+            <div className="flex-1">
+              <h2 className="font-serif font-semibold text-capsule-dusk mb-1 flex items-center gap-2">
+                <Users className="w-5 h-5 text-amber-500" /> Group Memory
+              </h2>
+              <p className="text-sm text-gray-500">Allow your batchmates to add their own messages and photos to this capsule after you create it.</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+              <input type="checkbox" className="sr-only peer" {...register('is_collaborative')} />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
+          </motion.div>
+
           {/* Message */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
@@ -223,6 +245,14 @@ export default function CreateCapsulePage() {
               className="hidden"
               onChange={handleFileChange}
             />
+          </motion.div>
+
+          {/* Audio recording */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+            className="glass-card p-6"
+          >
+            <VoiceRecorder onRecordingComplete={(f) => setVoiceFile(f)} />
           </motion.div>
 
           {/* Submit */}

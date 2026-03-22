@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Sparkles, LayoutDashboard, Plus, Package, Users, LogOut, Menu, X, Home } from 'lucide-react'
+import { Sparkles, LayoutDashboard, Plus, Package, Users, LogOut, Menu, X, Home, Globe, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -10,6 +10,7 @@ const navLinks = [
   { to: '/create', label: 'New Capsule', icon: Plus },
   { to: '/capsules', label: 'My Capsules', icon: Package },
   { to: '/batches', label: 'Batches', icon: Users },
+  { to: '/hall-of-fame', label: 'Hall of Fame', icon: Globe },
 ]
 
 export default function Navbar() {
@@ -53,6 +54,16 @@ export default function Navbar() {
                 </Link>
               )
             })}
+            
+            {user?.role === 'admin' && (
+              <Link
+                to="/admin"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
+              >
+                <ShieldAlert className="w-4 h-4" />
+                Requests
+              </Link>
+            )}
           </div>
 
           {/* User + Logout */}
@@ -97,6 +108,18 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin"
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
+            >
+              <ShieldAlert className="w-4 h-4" />
+              Verify Requests
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50 w-full transition-all"

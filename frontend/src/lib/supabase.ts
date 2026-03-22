@@ -33,6 +33,8 @@ export interface Capsule {
   media_urls: string[]
   unlock_date: string
   is_unlocked: boolean
+  is_public?: boolean
+  is_collaborative?: boolean
   batch_id: string
   created_at: string
   sender?: Profile
