@@ -37,7 +37,7 @@ export default function App() {
   const { isAuthenticated } = useAuth()
   const location = useLocation()
 
-  const showNavbar = isAuthenticated && !['/','\/login','\/register','\/forgot-password','\/reset-password'].includes(location.pathname)
+  const showNavbar = isAuthenticated && !['/', '/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname)
 
   return (
     <div className="min-h-screen">

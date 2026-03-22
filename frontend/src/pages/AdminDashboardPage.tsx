@@ -16,6 +16,7 @@ interface AdminUser {
   branch?: string
   batch: { name: string; year: number } | null
   created_at: string
+  is_verified: boolean
 }
 
 export default function AdminDashboardPage() {
