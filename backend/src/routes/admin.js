@@ -14,31 +14,54 @@ const requireAdmin = (req, res, next) => {
 router.use(auth)
 router.use(requireAdmin)
 
-// GET /api/admin/pending-users
-router.get('/pending-users', async (req, res) => {
+// GET /api/admin/users
+router.get('/users', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, name, email, role, batch:batches(name, year), created_at')
-      .eq('is_verified', false)
-      .neq('role', 'admin')
+      .select('id, name, email, role, status, branch, batch:batches(name, year), is_verified, created_at')
+      .neq('role', 'admin') // Don't show admin profiles
       .order('created_at', { ascending: false })
 
     if (error) throw error
     res.json(data)
   } catch (err) {
-    console.error('Pending users error:', err)
-    res.status(500).json({ message: 'Failed to fetch pending users' })
+    console.error('Fetch users error:', err)
+    res.status(500).json({ message: 'Failed to fetch users' })
   }
 })
 
-// PUT /api/admin/verify/:id
+// PUT /api/admin/users/:id/status
+router.put('/users/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body // expected values: active, blocked, suspended, pending
+
+    const updateData = { status }
+    if (status === 'active') {
+      updateData.is_verified = true
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', id)
+
+    if (error) throw error
+    res.json({ message: `User status set to ${status}` })
+  } catch (err) {
+    console.error('Update status error:', err)
+    res.status(500).json({ message: 'Failed to update user status' })
+  }
+})
+
+// Kept for backward compatibility or direct verification
 router.put('/verify/:id', async (req, res) => {
   try {
     const { id } = req.params
     const { error } = await supabase
       .from('profiles')
-      .update({ is_verified: true })
+      .update({ is_verified: true, status: 'active' })
       .eq('id', id)
 
     if (error) throw error

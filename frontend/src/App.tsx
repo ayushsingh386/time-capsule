@@ -54,7 +54,7 @@ export default function App() {
           <Route path="/capsules" element={<ProtectedRoute><ViewCapsulesPage /></ProtectedRoute>} />
           <Route path="/batches" element={<ProtectedRoute><BatchManagementPage /></ProtectedRoute>} />
           <Route path="/hall-of-fame" element={<ProtectedRoute><HallOfFamePage /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/super-admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

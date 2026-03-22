@@ -57,11 +57,11 @@ export default function Navbar() {
             
             {user?.role === 'admin' && (
               <Link
-                to="/admin"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
+                to="/super-admin"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === '/super-admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
               >
                 <ShieldAlert className="w-4 h-4" />
-                Requests
+                Admin Panel
               </Link>
             )}
           </div>
@@ -111,12 +111,12 @@ export default function Navbar() {
           
           {user?.role === 'admin' && (
             <Link
-              to="/admin"
+              to="/super-admin"
               onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${location.pathname === '/super-admin' ? 'bg-rose-100 text-rose-800' : 'text-rose-600 hover:bg-rose-50'}`}
             >
               <ShieldAlert className="w-4 h-4" />
-              Verify Requests
+              User Management
             </Link>
           )}
 

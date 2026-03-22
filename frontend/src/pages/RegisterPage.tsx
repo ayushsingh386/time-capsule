@@ -13,8 +13,9 @@ interface RegisterForm {
   email: string
   password: string
   confirmPassword: string
-  role: 'student' | 'teacher' | 'admin'
-  batch_id: string
+  role: 'student' | 'teacher'
+  batch_id?: string
+  branch?: string
 }
 
 export default function RegisterPage() {
@@ -36,7 +37,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setLoading(true)
     try {
-      await authRegister(data.name, data.email, data.password, data.role, data.batch_id)
+      await authRegister(data.name, data.email, data.password, data.role, data.batch_id, data.branch)
       toast.success('Account created! Welcome to TimeCapsule 🎉')
       navigate('/dashboard')
     } catch (err: any) {
@@ -81,8 +82,8 @@ export default function RegisterPage() {
             {/* Role selector */}
             <div>
               <label className="block text-sm font-medium text-white/90 mb-1.5">I am a...</label>
-              <div className="grid grid-cols-3 gap-3">
-                {(['student', 'teacher', 'admin'] as const).map(role => (
+              <div className="grid grid-cols-2 gap-3">
+                {(['student', 'teacher'] as const).map(role => (
                   <label
                     key={role}
                     className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${watchRole === role
@@ -133,20 +134,40 @@ export default function RegisterPage() {
               {errors.email && <p className="text-rose-500 text-xs mt-1">{errors.email.message}</p>}
             </div>
 
-            {/* Batch */}
-            {batches.length > 0 && (
+            {/* Batch (Student only) */}
+            {watchRole === 'student' && batches.length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-white/90 mb-1.5">Select your Batch</label>
                 <select
                   id="reg-batch"
-                  className="input-field bg-white"
-                  {...register('batch_id')}
+                  className="input-field bg-white text-gray-800"
+                  {...register('batch_id', { required: watchRole === 'student' ? 'Batch is required' : false })}
                 >
                   <option value="">Select batch...</option>
                   {batches.map(b => (
                     <option key={b.id} value={b.id}>{b.name} · {b.year}</option>
                   ))}
                 </select>
+                {errors.batch_id && <p className="text-rose-500 text-xs mt-1">{errors.batch_id.message}</p>}
+              </div>
+            )}
+
+            {/* Branch (Teacher only) */}
+            {watchRole === 'teacher' && (
+              <div>
+                <label className="block text-sm font-medium text-white/90 mb-1.5">Select your Branch</label>
+                <select
+                  id="reg-branch"
+                  className="input-field bg-white text-gray-800"
+                  {...register('branch', { required: watchRole === 'teacher' ? 'Branch is required' : false })}
+                >
+                  <option value="">Select branch...</option>
+                  <option value="CS">Computer Science (CS)</option>
+                  <option value="DS">Data Science (DS)</option>
+                  <option value="IT">Information Technology (IT)</option>
+                  <option value="Others">Others</option>
+                </select>
+                {errors.branch && <p className="text-rose-500 text-xs mt-1">{errors.branch.message}</p>}
               </div>
             )}
 

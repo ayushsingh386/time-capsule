@@ -21,7 +21,7 @@ const signToken = (user) => jwt.sign(
 // POST /api/auth/register
 router.post('/register', authLimiter, async (req, res) => {
   try {
-    const { name, email, password, role, batch_id } = req.body
+    const { name, email, password, role, batch_id, branch } = req.body
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'All fields are required' })
     }
@@ -44,8 +44,10 @@ router.post('/register', authLimiter, async (req, res) => {
         email,
         password_hash: hashed,
         role,
-        batch_id: batch_id || null,
-        is_verified: false // Default to false on registration
+        batch_id: role === 'student' ? (batch_id || null) : null,
+        branch: role === 'teacher' ? (branch || null) : null,
+        is_verified: false,
+        status: 'pending'
       })
       .select()
       .single()
@@ -69,7 +71,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
     const { data: user, error } = await supabase
       .from('profiles')
-      .select('id, name, email, role, batch_id, is_verified, password_hash') // Select password_hash and is_verified
+      .select('id, name, email, role, batch_id, is_verified, status, password_hash')
       .eq('email', email)
       .single()
 
@@ -78,11 +80,19 @@ router.post('/login', authLimiter, async (req, res) => {
     const valid = await bcrypt.compare(password, user.password_hash)
     if (!valid) return res.status(401).json({ message: 'Invalid email or password' })
 
-    // Check if the user is verified, unless they are an admin
-    if (user.role !== 'admin' && !user.is_verified) {
-      return res.status(403).json({
-        message: 'Your account is pending admin verification. Please wait for an administrator to approve your account before logging in.'
-      })
+    // Check account status
+    if (user.role !== 'admin') {
+      if (user.status === 'blocked' || user.status === 'suspended') {
+        return res.status(403).json({
+          message: `Your account has been ${user.status}. Please contact the administrator.`
+        })
+      }
+      
+      if (!user.is_verified || user.status === 'pending') {
+        return res.status(403).json({
+          message: 'Your account is pending admin verification. Please wait for an administrator to approve your account before logging in.'
+        })
+      }
     }
 
     const token = signToken(user)

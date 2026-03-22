@@ -15,7 +15,7 @@ interface AuthContextType {
   token: string | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (name: string, email: string, password: string, role: string, batchId?: string) => Promise<void>
+  register: (name: string, email: string, password: string, role: string, batchId?: string, branch?: string) => Promise<void>
   logout: () => void
   isAuthenticated: boolean
 }
@@ -50,8 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(userData)
   }
 
-  const register = async (name: string, email: string, password: string, role: string, batchId?: string) => {
-    const res = await api.post('/auth/register', { name, email, password, role, batch_id: batchId })
+  const register = async (name: string, email: string, password: string, role: string, batchId?: string, branch?: string) => {
+    const res = await api.post('/auth/register', { name, email, password, role, batch_id: batchId, branch })
     const { token: jwt, user: userData } = res.data
     localStorage.setItem('tc_token', jwt)
     localStorage.setItem('tc_user', JSON.stringify(userData))
